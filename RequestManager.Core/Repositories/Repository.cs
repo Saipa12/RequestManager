@@ -39,19 +39,22 @@ public abstract class Repository<TEntity> : IRepository where TEntity : class
 
     public virtual async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        _databaseContext.Entry(entity).State = EntityState.Modified;
+        //_databaseContext.Entry(entity).State = EntityState.Unchanged; // TODO
+        _databaseContext.Update(entity);
         return await SaveAndDetachAsync(entity);
     }
 
     public virtual async Task<IEnumerable<TEntity>> UpdateAsync(IEnumerable<TEntity> entities)
     {
-        _databaseContext.AttachRange(entities);
+        //_databaseContext.AttachRange(entities); // TODO
+        _databaseContext.UpdateRange(entities);
         return await SaveAndDetachAsync(entities);
     }
 
     public virtual async Task<TEntity> DeleteAsync(TEntity entity)
     {
-        _databaseContext.Entry(entity).State = EntityState.Deleted;
+        //_databaseContext.Entry(entity).State = EntityState.Deleted; // TODO
+        _databaseContext.Remove(entity);
         return await SaveAndDetachAsync(entity);
     }
 
@@ -63,7 +66,7 @@ public abstract class Repository<TEntity> : IRepository where TEntity : class
 
     protected async Task<TEntity> SaveAndDetachAsync(TEntity entity)
     {
-        var a = await _databaseContext.SaveChangesAsync();
+        await _databaseContext.SaveChangesAsync();
         _databaseContext.Entry(entity).State = EntityState.Detached;
         return entity;
     }
