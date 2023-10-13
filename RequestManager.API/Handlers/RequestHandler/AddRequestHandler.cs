@@ -1,10 +1,10 @@
-﻿using RequestManager.API.Repositories;
+﻿using RequestManager.API.Dto;
+using RequestManager.API.Repositories;
 using RequestManager.Core.Handlers;
-using DbM = RequestManager.Database.Models;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
-public record AddRequest(DbM.Request RequestDto);
+public record AddRequest(RequestDto RequestDto);
 
 public record AddResponse();
 
@@ -19,7 +19,7 @@ public class AddRequestHandler : IAsyncHandler<AddRequest, AddResponse>
 
     public async Task<AddResponse> Handle(AddRequest request)
     {
-        await _requestRepository.AddRequestAsync(request.RequestDto);
+        await _requestRepository.CreateAsync(request.RequestDto);
         // return await request;
         return new AddResponse();
     }

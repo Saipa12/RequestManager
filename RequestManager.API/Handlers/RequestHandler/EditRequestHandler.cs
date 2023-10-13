@@ -1,13 +1,12 @@
-﻿using RequestManager.API.Repositories;
+﻿using RequestManager.API.Dto;
+using RequestManager.API.Repositories;
 using RequestManager.Core.Handlers;
-using RequestManager.Shared.Services;
-using DbM = RequestManager.Database.Models;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
-public record EditRequest(DbM.Request RequestDto);
+public record EditRequest(RequestDto Request);
 
-public record EditResponse(DbM.Request RequestDto);
+public record EditResponse(RequestDto Request);
 
 public class EditRequestHandler : IAsyncHandler<EditRequest, EditResponse>
 {
@@ -20,6 +19,6 @@ public class EditRequestHandler : IAsyncHandler<EditRequest, EditResponse>
 
     public async Task<EditResponse> Handle(EditRequest request)
     {
-        return new EditResponse(await _requestRepository.EditRequestAsync(request.RequestDto));
+        return new EditResponse(await _requestRepository.UpdateAsync(request.RequestDto));
     }
 }
