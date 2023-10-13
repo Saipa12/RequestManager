@@ -1,0 +1,12 @@
+﻿{
+    "profiles": {
+        "RequestManager.Database": {
+            "commandName": "Project",
+            "launchBrowser": true,
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "applicationUrl": "https://localhost:64826;http://localhost:64827"
+        }
+    }
+}
