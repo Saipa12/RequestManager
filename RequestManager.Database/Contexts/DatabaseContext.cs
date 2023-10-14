@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace RequestManager.Database.Contexts;
 
-public class DatabaseContext : ApiAuthorizationDbContext<User>
+public sealed class DatabaseContext : ApiAuthorizationDbContext<User>
 {
     public DbSet<Deliver> Delivers { get; set; }
     public DbSet<Request> Requests { get; set; }
@@ -37,11 +37,6 @@ public class DatabaseContext : ApiAuthorizationDbContext<User>
         }
 
         return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        base.OnConfiguring(optionsBuilder);
     }
 
     protected override void OnModelCreating(ModelBuilder builder)

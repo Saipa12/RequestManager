@@ -26,4 +26,10 @@
 	  <ProjectReference Include="..\RequestManager.API\RequestManager.API.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="wwwroot\tsconfig.json">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>

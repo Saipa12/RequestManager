@@ -1,0 +1,112 @@
+﻿{
+    "compilerOptions": {
+        "lib": [ "DOM", "ES2015" ],
+        "target": "es5",
+        "noEmitOnError": true,
+        "rootDir": "./ts",
+        "strict": false,
+        "module": "es2015",
+        "moduleResolution": "node"
+        //"outDir": "wwwroot/js"
+    },
+    //"include": [ "wwrooot/ts/**/**/*" ],
+    "compileOnSave": false
+}
+
+//{
+//  "compilerOptions": {
+//    //"noimplicitany": true,
+//    //"esModuleInterop": true,
+//    "target": "ES5",
+//    "types": [ "node" ],
+//    "typeRoots": [ "./node_modules/@types" ],
+//    "module": "ES2022",
+//    "rootDir": "./ts",
+//    //"outDir": "./generated"
+//    //"strict": true
+//    //"module": "es6",
+//    //"moduleresolution": "node",
+//    //"target": "es5",
+//    //"allowjs": true,
+//    //"sourcemap": true,
+//    //"typeroots": [
+//    //  "node_modules/@types"
+//    //],
+//    "lib": [ "DOM", "ES2015" ],
+//    "strict": false,
+//    "moduleResolution": "node"
+//    //"lib": [
+//    //  "es2017",
+//    //  "dom"
+//    //]
+//  },
+
+//  "compileOnSave": true
+//}
+
+//{
+//  "compileOnSave": true,
+//  "compilerOptions": {
+//    //"noImplicitAny": true,
+//    "outDir": "./output",
+//    "esModuleInterop": true,
+//    "target": "es6",
+//    "module": "CommonJS",
+//    "isolatedModules": false
+//    //"allowJs": true,
+//    //"sourceMap": true,
+//  }
+//}
+
+//{
+//  "compileOnSave": true,
+//  "compilerOptions": {
+//    "baseUrl": "./",
+//    "esModuleInterop": true,
+//    "outDir": "./output",
+//    "sourceMap": true,
+//    "declaration": false,
+//    "module": "ESNext",
+//    "moduleResolution": "node",
+//    "emitDecoratorMetadata": true,
+//    "experimentalDecorators": true,
+//    "target": "es6",
+//    "typeRoots": [ "node_modules/@types" ],
+//    "lib": [ "es2018", "dom" ]
+//  }
+//}
+
+//{
+//  "compilerOptions": {
+//    "noImplicitAny": true,
+//    "module": "es6",
+//    "moduleResolution": "node",
+//    "target": "es5",
+//    "allowJs": true,
+//    "sourceMap": true,
+//    "typeRoots": [
+//      "node_modules/@types"
+//    ],
+//    "lib": [
+//      "es2017",
+//      "dom"
+//    ]
+//  }
+//}
+
+//{
+//  "compilerOptions": {
+//    "noImplicitAny": false,
+//    "noEmitOnError": true,
+//    "esModuleInterop": true,
+//    "removeComments": false,
+//    "sourceMap": true,
+//    "target": "es5",
+//    "rootDir": "Scripts/ts",
+//    "outDir": "wwwroot/js/generated"
+//  },
+//  "include": [
+//    "ts/**/*"
+//  ],
+//  "compileOnSave": true
+//}
