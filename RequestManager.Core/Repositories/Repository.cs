@@ -21,6 +21,8 @@ public abstract class Repository<TEntity> : IRepository where TEntity : class
 
     public virtual async Task<TEntity> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate) => await _databaseContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
 
+    public virtual async Task<TEntity> GetFirstOrDefaultAsync(Func<Task<TEntity>, Task<TEntity>> func) => await func(_databaseContext.Set<TEntity>().FirstOrDefaultAsync());
+
     public virtual async Task<IEnumerable<TEntity>> GetAsync() => await _databaseContext.Set<TEntity>().ToListAsync();
 
     public virtual async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate) => await _databaseContext.Set<TEntity>().Where(predicate).ToListAsync();

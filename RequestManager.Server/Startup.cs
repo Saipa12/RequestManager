@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
+using MudBlazor.Services;
 using RequestManager.API;
 using RequestManager.API.Common;
 using RequestManager.API.Handlers.RequestHandler;
@@ -115,6 +116,7 @@ public class Startup
         });
         RegisterHandlers(services);
         services.AddScoped<RequestRepository>();
+        services.AddMudServices();
         //services.AddOptions(Configuration);
     }
 

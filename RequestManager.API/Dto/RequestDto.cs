@@ -8,7 +8,7 @@ public class RequestDto : ClientEntity, IMapFrom<Request>
 {
     public RequestStatus Status { get; set; }
 
-    public string Description { get; set; }
+    public string CargoDescription { get; set; }
 
     public string DeliveryAddress { get; set; }
 
