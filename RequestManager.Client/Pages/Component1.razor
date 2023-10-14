@@ -1,3 +1,37 @@
 ﻿@page "/"
 
 <h3>Start</h3>
+@if (_requests == null)
+{
+<p>Loading...</p>
+}
+else
+{
+<table class="styled-table">
+	<tr>
+		<th>Status</th>
+		<th>Cargo description</th>
+		<th>Delivery address</th>
+		<th>Dispatch address</th>
+		<th>Delivery date</th>
+		<th>Dispatch date</th>
+		<th>recipient's number</th>
+		<th>recipient FIO</th>
+		<th>Deliver Fio</th>
+	</tr>
+	@foreach (var item in _requests)
+	{
+		<tr>
+			<td>@item.Status</td>
+			<td>@item.Description</td>
+			<td>@item.DeliveryAddress</td>
+			<td>@item.DispatchAddress</td>
+			<td>@item.DeliveryDate</td>
+			<td>@item.DeliveryTime</td>
+			<td>@item.TelNumber</td>
+			<td>@item.RecipientFIO</td>
+			<td>@item.Deliver.Name</td>
+		</tr>
+	}
+</table>
+}

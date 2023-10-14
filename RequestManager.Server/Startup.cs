@@ -1,5 +1,14 @@
-﻿using RequestManager.API;
+﻿using AutoMapper.Internal;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
+using RequestManager.API;
 using RequestManager.API.Common;
+using RequestManager.API.Handlers.RequestHandler;
+using RequestManager.API.Repositories;
 using RequestManager.Core.Extensions;
 using RequestManager.Core.Handlers;
 using RequestManager.Core.Repositories;
@@ -8,14 +17,9 @@ using RequestManager.Database.Contexts;
 using RequestManager.Database.Extensions;
 using RequestManager.Database.Models;
 using RequestManager.Server.Areas.Identity;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Net.Mime;
+using System.Reflection;
 
 namespace RequestManager;
 
@@ -29,6 +33,18 @@ public class Startup
     {
         Configuration = configuration;
         _isProduction = enviroment.IsProduction();
+    }
+
+    public void RegisterHandlers(IServiceCollection services)
+    {
+        var handlerTypes = Assembly.GetAssembly(typeof(AddRequestHandler)).GetTypes()
+    .Where(type => type.GetInterfaces().Any(
+        i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IHandler<,>)
+    ));
+        foreach (var handlerType in handlerTypes)
+        {
+            services.AddScoped(handlerType.GetInterfaces().First(), handlerType);
+        }
     }
 
     public void ConfigureServices(IServiceCollection services)
@@ -97,6 +113,8 @@ public class Startup
         {
             options.MaximumReceiveMessageSize = 1_024_000L;
         });
+        RegisterHandlers(services);
+        services.AddScoped<RequestRepository>();
         //services.AddOptions(Configuration);
     }
 

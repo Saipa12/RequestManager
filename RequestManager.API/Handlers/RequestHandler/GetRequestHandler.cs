@@ -1,26 +1,31 @@
-﻿using RequestManager.API.Dto;
+﻿using AutoMapper;
+using RequestManager.API.Dto;
 using RequestManager.API.Repositories;
 using RequestManager.Core.Handlers;
-using RequestManager.Shared.Services;
-using DbM = RequestManager.Database.Models;
+using RequestManager.Database.Models;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
 public record GetRequest(int Id);
 
-public record GetResponses(RequestDto RequestDto);
+public record GetResponse(RequestDto Request);
 
-public class GetRequestHandler : IAsyncHandler<GetRequest, GetResponses>
+public class GetRequestHandler : IAsyncHandler<GetRequest, GetResponse>
 {
     private readonly RequestRepository _requestRepository;
+    private readonly IMapper _mapper;
 
-    public GetRequestHandler(RequestRepository requestRepository)
+    public GetRequestHandler(RequestRepository requestRepository, IMapper mapper)
     {
         _requestRepository = requestRepository;
+        _mapper = mapper;
     }
 
-    public async Task<GetResponses> Handle(GetRequest request)
+    public async Task<GetResponse> Handle(GetRequest request)
     {
-        return new GetResponses(await _requestRepository.Ge(request.Id));
+        var requestDto = new RequestDto() { Id = request.Id };
+        var getedRequestDto = _mapper.Map<Request>(requestDto);
+        var gettedRequest = _mapper.Map<RequestDto>(await _requestRepository.GetFirstOrDefaultAsync(x => x.Id == getedRequestDto.Id));
+        return new GetResponse(gettedRequest);
     }
 }

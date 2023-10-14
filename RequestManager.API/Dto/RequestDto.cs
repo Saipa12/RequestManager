@@ -1,8 +1,10 @@
 ﻿using RequestManager.Api.Enums;
+using RequestManager.API.Common;
+using RequestManager.Database.Models;
 
 namespace RequestManager.API.Dto;
 
-public class RequestDto : ClientEntity
+public class RequestDto : ClientEntity, IMapFrom<Request>
 {
     public RequestStatus Status { get; set; }
 

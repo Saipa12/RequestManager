@@ -1,6 +1,9 @@
-﻿namespace RequestManager.API.Dto;
+﻿using RequestManager.API.Common;
+using RequestManager.Database.Models;
 
-public class DeliverDto : ClientEntity
+namespace RequestManager.API.Dto;
+
+public class DeliverDto : ClientEntity, IMapFrom<Deliver>
 {
     public string Name { get; set; }
 
