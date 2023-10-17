@@ -37,7 +37,17 @@ public class RequestRepository : Repository<Request>
             {
                 record.Status = RequestStatus.InProgress;
             }
+
+            // Пометьте сущность как измененную
+            _databaseContext.Entry(record).State = EntityState.Modified;
+
+            if (saveChanges)
+            {
+                await _databaseContext.SaveChangesAsync();
+            }
         }
+
         return record;
     }
+
 }

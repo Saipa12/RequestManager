@@ -67,6 +67,7 @@ public class Startup
         //    options.Password.RequireDigit = false;
         //    options.SignIn.RequireConfirmedEmail = true;
         //}).AddRoles<Role>();
+
         RegisterBlazor(services);
         // TODO: Добавить
         //services.AddAuthentication(options =>
@@ -114,9 +115,7 @@ public class Startup
         {
             options.MaximumReceiveMessageSize = 1_024_000L;
         });
-        RegisterHandlers(services);
-        services.AddScoped<RequestRepository>();
-        services.AddMudServices();
+
         //services.AddOptions(Configuration);
     }
 
@@ -124,6 +123,7 @@ public class Startup
     {
         services.AddRazorPages();
         services.AddServerSideBlazor();
+        services.AddMudServices();
         // TODO: Добавить
         //services.AddLiveReload(config =>
         //{

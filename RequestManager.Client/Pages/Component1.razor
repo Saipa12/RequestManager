@@ -3,42 +3,28 @@
 @using RequestManager.Api.Enums;
 
 <h3>Start</h3>
-<link href="wwwroot/css/app.css" rel="stylesheet" />
-@if (_requests == null)
+@if (Requests == null)
 {
 	<p>Loading...</p>
 }
 else
 {
-
-	<MudTable MultiSelection="true" Items="@_requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit" Filter="new Func<RequestDto,bool>(FilterFunc)"
-	@bind-SelectedItem="_selectedItem" @bind-SelectedItems="_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+	<MudButton  Variant="Variant.Filled" Color="Color.Primary" OnClick="AddNewRecord">Добавить</MudButton>
+	<MudTable  MultiSelection="true" @ref="@_mudTable" SelectedItem="@_selectedItem"
+	T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
+	Filter="new Func<RequestDto,bool>(FilterFunc)"
+	 SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
 			  RowEditPreview="x=>BackupItem((RequestDto)x)" RowEditCancel="x=>ResetItemToOriginalValues((RequestDto)x)"
 			  RowEditCommit="x=>ItemHasBeenCommitted((RequestDto)x)"
 			  IsEditRowSwitchingBlocked="@_blockSwitch" ApplyButtonPosition="@_applyButtonPosition" EditButtonPosition="@_editButtonPosition" EditTrigger="@_editTrigger">
 		<ToolBarContent>
-			<MudText Typo="Typo.h6">RequestDtos</MudText>
+			<MudText Typo="Typo.h6">Request</MudText>
 			<MudSpacer />
 			<MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
 		</ToolBarContent>
-		<ColGroup>
-			@if (_applyButtonPosition.DisplayApplyButtonAtStart() || (_editButtonPosition.DisplayEditButtonAtStart() && _editTrigger == TableEditTrigger.EditButton))
-			{
-				<col style="width:50px;" />
-			}
-			<col style="width:50px;" />
-			<col style="width:80px;" />
-			<col style="width:80px;" />
-			<col style="width:50%;" />
-			<col />
-			@if (_applyButtonPosition.DisplayApplyButtonAtEnd() || (_editButtonPosition.DisplayEditButtonAtEnd() && _editTrigger == TableEditTrigger.EditButton))
-			{
-				<col style="width:50px;" />
-			}
-		</ColGroup>
+
 		<HeaderContent>
 			<MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RequestDto, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
-			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.Id)">Id </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.CargoDescription)">Cargo description </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DeliveryDate)">Delivery date</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DeliveryTime)">Dispatch date</MudTableSortLabel></MudTh>
@@ -48,7 +34,6 @@ else
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.TelNumber)">Recipient's number </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.RecipientFIO)">Recipient FIO </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.Deliver.Name)">Deliver</MudTableSortLabel></MudTh>
-
 		</HeaderContent>
 		<RowTemplate>
 			<MudTd DataLabel="Id"> @context.Id</MudTd>
@@ -60,70 +45,52 @@ else
 			<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
 			<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
 			<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
-			<MudTd DataLabel="Deliver">@context.Deliver.Name</MudTd>
+			<MudTd DataLabel="Deliver">@context.Deliver?.Name</MudTd>
 		</RowTemplate>
 		<RowEditingTemplate>
 			<MudTd DataLabel="Id">@context.Id</MudTd>
 			<MudTd DataLabel="Cargo description">
-				<MudTextField @bind-Value="@context.CargoDescription" Required />
-				</MudTd>
-				<MudTd DataLabel="Delivery date">
-					<MudDatePicker @bind-Value="@context.DeliveryDate" />
-				</MudTd>
-				<MudTd DataLabel="Dispatch date">
-					<MudDatePicker @bind-Value="@context.DeliveryTime" />
-				</MudTd>
-				<MudTd DataLabel="Status">
-					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
-						@foreach (var status in _statuses)
+				<MudTextField @bind-Value="@context.CargoDescription" />
+			</MudTd>
+			<MudTd DataLabel="Delivery date">
+				<MudDatePicker @bind-Value="@context.DeliveryDate" />
+			</MudTd>
+			<MudTd DataLabel="Dispatch date">
+				<MudDatePicker @bind-Value="@context.DeliveryTime" />
+			</MudTd>
+			<MudTd DataLabel="Status">
+				<MudSelect @bind-Value="@context.Status" T="RequestStatus">
+					@foreach (var status in _statuses)
 					{
 						<MudSelectItem Value="@status">@status</MudSelectItem>
 					}
 				</MudSelect>
 			</MudTd>
 			<MudTd DataLabel="Delivery address">
-				<MudTextField @bind-Value="@context.DeliveryAddress" Required />
-				</MudTd>
-				<MudTd DataLabel="Dispatch address">
-					<MudTextField @bind-Value="@context.DispatchAddress" Required />
-				</MudTd>
-				<MudTd DataLabel="Recipient's number">
-					<MudNumericField @bind-Value="@context.TelNumber" Required />
-				</MudTd>
-				<MudTd DataLabel="Recipient FIO">
-					<MudTextField @bind-Value="@context.RecipientFIO" Required Min="1" />
-				</MudTd>
-
-
-			</RowEditingTemplate>
-			<EditButtonContent Context="button">
-				<MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
-			</EditButtonContent>
-		</MudTable>
+				<MudTextField @bind-Value="@context.DeliveryAddress" />
+			</MudTd>
+			<MudTd DataLabel="Dispatch address">
+				<MudTextField @bind-Value="@context.DispatchAddress" />
+			</MudTd>
+			<MudTd DataLabel="Recipient's number">
+				<MudNumericField @bind-Value="@context.TelNumber" />
+			</MudTd>
+			<MudTd DataLabel="Recipient FIO">
+				<MudTextField @bind-Value="@context.RecipientFIO" />
+			</MudTd>
+			<MudTd DataLabel="Deliver">
+				<MudSelect @bind-Value="@context.Deliver" T="DeliverDto">
+					@foreach (var deliver in Delivers)
+					{
+						<MudSelectItem Value="@deliver">@deliver.Name</MudSelectItem>
+					}
+				</MudSelect>
+			</MudTd>
+		</RowEditingTemplate>
+		<EditButtonContent Context="button">
+			<MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+		</EditButtonContent>
+	</MudTable>
 	<MudIconButton Size="@MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Delete" OnClick="Drop">Delete</MudIconButton>
 
 }
-<style>
-	table {
-		width: 100%;
-		border-collapse: collapse;
-	}
-
-	th, td {
-		padding: 8px;
-		text-align: left;
-		border-bottom: 2px solid #ddd;
-	}
-
-	th {
-		background-color: #f2f2f2;
-	}
-
-	tr:nth-child(even) {
-		background-color: #f2f2f2;
-	}
-
-	tr:hover {
-		background-color: #ddd;
-	}
-</style>

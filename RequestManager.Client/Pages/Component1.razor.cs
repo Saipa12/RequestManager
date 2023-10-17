@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.DependencyInjection;
 using MudBlazor;
 using RequestManager.Api.Enums;
 using RequestManager.API.Dto;
@@ -11,20 +10,21 @@ namespace RequestManager.Client.Pages;
 
 public partial class Component1
 {
-    private IEnumerable<RequestDto> _requests;
-    private IEnumerable<DeliverDto> _delivers;
+    private List<RequestDto> Requests { get; set; }
+
+    private IEnumerable<DeliverDto> Delivers { get; set; }
     private IEnumerable<RequestStatus> _statuses;
-    [Inject] private IServiceProvider ServiceProvider { get; set; }
     [Inject] private IMapper Maper { get; set; }
     private bool _canCancelEdit = true;
     private bool _blockSwitch = false;
     private string _searchString = "";
     private RequestDto _selectedItem = null;
     private RequestDto _elementBeforeEdit;
-    private HashSet<RequestDto> _selectedItems = new();
+    private HashSet<RequestDto> _selectedItems;
     private TableApplyButtonPosition _applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition _editButtonPosition = TableEditButtonPosition.End;
     private TableEditTrigger _editTrigger = TableEditTrigger.EditButton;
+
     [Inject] private GetRequestsHandler GetRequestsHandler { get; set; }
     [Inject] private GetDeliverHandler GetDeliverHandler { get; set; }
     [Inject] private GetRequestHandler GetRequestHandler { get; set; }
@@ -32,11 +32,28 @@ public partial class Component1
     [Inject] private EditRequestHandler EditRequestHandler { get; set; }
     [Inject] private DeleteRequestHandler DeleteRequestHandler { get; set; }
 
+    private MudTable<RequestDto> _mudTable;
+
     protected override async Task OnInitializedAsync()
     {
-        _requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto;
-        _delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
-        _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
+        //Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto;
+        //Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
+        //_statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
+        //_selectedItems = new HashSet<RequestDto>();
+        //await InvokeAsync(StateHasChanged);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
+            _selectedItems = new();
+            Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
+            _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
+            await InvokeAsync(StateHasChanged);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private void BackupItem(RequestDto element)
@@ -48,18 +65,26 @@ public partial class Component1
     {
         foreach (var request in _selectedItems)
         {
+            Requests.Remove(request);
+            request.Deliver = null;
             await DeleteRequestHandler.Handle(new DeleteRequest(request));
         }
+        await InvokeAsync(StateHasChanged);
     }
 
     private async void ItemHasBeenCommitted(RequestDto element)
     {
+        if (element.Id == 0)
+        {
+            element.Id = (await GetRequestsHandler.Handle(new GetRequests(false))).RequestDto.Last().Id;
+        }
         await EditRequestHandler.Handle(new EditRequest(element));
+        Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ResetItemToOriginalValues(RequestDto element)
     {
-        // DatabaseContext model = new(connString);
         _elementBeforeEdit = Maper.Map<RequestDto>(element);
     }
 
@@ -72,8 +97,22 @@ public partial class Component1
         return false;
     }
 
-    private async void AddRequest(RequestDto element)
+    private async void AddNewRecord()
     {
-        await AddRequestHandler.Handle(new AddRequest(element));
+        _mudTable.SetEditingItem(null);
+        var newRecord = new RequestDto
+        {
+            Status = RequestStatus.New,
+            DeliveryAddress = "",
+            DispatchAddress = "",
+            DeliveryDate = DateTime.UtcNow,
+            DeliveryTime = DateTime.UtcNow.AddDays(1)
+        };
+
+        Requests.Insert(0, newRecord);
+        await AddRequestHandler.Handle(new AddRequest(newRecord));
+        _mudTable.SetSelectedItem(Requests.First());
+        _mudTable.SetEditingItem(Requests.First());
+        await InvokeAsync(StateHasChanged);
     }
 }

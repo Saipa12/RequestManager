@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
-public record GetRequests(bool WhithDelivers = false);
+public record GetRequests(bool IncludeDeliver = false);
 
 public record GetResponses(IEnumerable<RequestDto> RequestDto);
 
@@ -23,7 +23,7 @@ public class GetRequestsHandler : IAsyncHandler<GetRequests, GetResponses>
 
     public async Task<GetResponses> Handle(GetRequests request)
     {
-        if (request.WhithDelivers)
+        if (request.IncludeDeliver)
         {
             var requests = await _requestRepository.GetAsync(x => x.Include(d => d.Deliver));
             var response = requests.Select(_mapper.Map<RequestDto>);
