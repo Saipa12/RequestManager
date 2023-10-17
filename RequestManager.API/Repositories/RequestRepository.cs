@@ -46,8 +46,6 @@ public class RequestRepository : Repository<Request>
                 await _databaseContext.SaveChangesAsync();
             }
         }
-
-        return record;
+        return await SaveAndDetachAsync(entity, saveChanges);
     }
-
 }

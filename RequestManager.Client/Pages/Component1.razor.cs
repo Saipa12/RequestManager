@@ -77,9 +77,14 @@ public partial class Component1
         if (element.Id == 0)
         {
             element.Id = (await GetRequestsHandler.Handle(new GetRequests(false))).RequestDto.Last().Id;
+            await EditRequestHandler.Handle(new EditRequest(element));
+            Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
         }
-        await EditRequestHandler.Handle(new EditRequest(element));
-        Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
+        else
+        {
+            await EditRequestHandler.Handle(new EditRequest(element));
+        }
+
         await InvokeAsync(StateHasChanged);
     }
 
