@@ -9,11 +9,11 @@
 }
 else
 {
-	<MudButton  Variant="Variant.Filled" Color="Color.Primary" OnClick="AddNewRecord">Добавить</MudButton>
-	<MudTable  MultiSelection="true" @ref="@_mudTable" SelectedItem="@_selectedItem"
-	T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
-	Filter="new Func<RequestDto,bool>(FilterFunc)"
-	 SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+	<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddNewRecord">Добавить</MudButton>
+	<MudTable MultiSelection="true" @ref="@_mudTable" SelectedItem="@_selectedItem"
+			  T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
+			  Filter="new Func<RequestDto,bool>(FilterFunc)"
+			  SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
 			  RowEditPreview="x=>BackupItem((RequestDto)x)" RowEditCancel="x=>ResetItemToOriginalValues((RequestDto)x)"
 			  RowEditCommit="x=>ItemHasBeenCommitted((RequestDto)x)"
 			  IsEditRowSwitchingBlocked="@_blockSwitch" ApplyButtonPosition="@_applyButtonPosition" EditButtonPosition="@_editButtonPosition" EditTrigger="@_editTrigger">
@@ -49,35 +49,49 @@ else
 		</RowTemplate>
 		<RowEditingTemplate>
 			<MudTd DataLabel="Id">@context.Id</MudTd>
-			<MudTd DataLabel="Cargo description">
-				<MudTextField @bind-Value="@context.CargoDescription" />
-			</MudTd>
-			<MudTd DataLabel="Delivery date">
-				<MudDatePicker @bind-Value="@context.DeliveryDate" />
-			</MudTd>
-			<MudTd DataLabel="Dispatch date">
-				<MudDatePicker @bind-Value="@context.DeliveryTime" />
-			</MudTd>
-			<MudTd DataLabel="Status">
-				<MudSelect @bind-Value="@context.Status" T="RequestStatus">
-					@foreach (var status in _statuses)
-					{
-						<MudSelectItem Value="@status">@status</MudSelectItem>
-					}
-				</MudSelect>
-			</MudTd>
-			<MudTd DataLabel="Delivery address">
-				<MudTextField @bind-Value="@context.DeliveryAddress" />
-			</MudTd>
-			<MudTd DataLabel="Dispatch address">
-				<MudTextField @bind-Value="@context.DispatchAddress" />
-			</MudTd>
-			<MudTd DataLabel="Recipient's number">
-				<MudNumericField @bind-Value="@context.TelNumber" />
-			</MudTd>
-			<MudTd DataLabel="Recipient FIO">
-				<MudTextField @bind-Value="@context.RecipientFIO" />
-			</MudTd>
+			@if (context.Status == RequestStatus.New)
+			{
+				<MudTd DataLabel="Cargo description">
+					<MudTextField @bind-Value="@context.CargoDescription" />
+				</MudTd>
+				<MudTd DataLabel="Delivery date">
+					<MudDatePicker @bind-Value="@context.DeliveryDate" />
+				</MudTd>
+				<MudTd DataLabel="Dispatch date">
+					<MudDatePicker @bind-Value="@context.DeliveryTime" />
+				</MudTd>
+				<MudTd DataLabel="Status">
+					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
+						@foreach (var status in _statuses)
+						{
+							<MudSelectItem Value="@status">@status</MudSelectItem>
+						}
+					</MudSelect>
+				</MudTd>
+				<MudTd DataLabel="Delivery address">
+					<MudTextField @bind-Value="@context.DeliveryAddress" />
+				</MudTd>
+				<MudTd DataLabel="Dispatch address">
+					<MudTextField @bind-Value="@context.DispatchAddress" />
+				</MudTd>
+				<MudTd DataLabel="Recipient's number">
+					<MudNumericField @bind-Value="@context.TelNumber" />
+				</MudTd>
+				<MudTd DataLabel="Recipient FIO">
+					<MudTextField @bind-Value="@context.RecipientFIO" />
+				</MudTd>
+			}
+			else
+			{
+				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
+				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
+				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
+				<MudTd DataLabel="Status">@context.Status</MudTd>
+				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
+				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
+				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
+				<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
+			}
 			<MudTd DataLabel="Deliver">
 				<MudSelect @bind-Value="@context.Deliver" T="DeliverDto">
 					@foreach (var deliver in Delivers)

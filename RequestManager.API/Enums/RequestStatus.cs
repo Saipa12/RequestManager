@@ -5,5 +5,5 @@ public enum RequestStatus
     New,
     InProgress,
     Completed,
-    Cancelled
+    Rejected
 }

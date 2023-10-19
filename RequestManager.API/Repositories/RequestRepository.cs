@@ -29,7 +29,7 @@ public class RequestRepository : Repository<Request>
                 record.DispatchAddress = entity.DispatchAddress;
                 record.Deliver = entity.Deliver;
             }
-            else if (record.Status == RequestStatus.InProgress && (entity.Status == RequestStatus.Cancelled || entity.Status == RequestStatus.Completed))
+            else if (record.Status == RequestStatus.InProgress && (entity.Status == RequestStatus.Rejected || entity.Status == RequestStatus.Completed))
             {
                 record.Status = entity.Status;
             }
@@ -46,6 +46,12 @@ public class RequestRepository : Repository<Request>
                 await _databaseContext.SaveChangesAsync();
             }
         }
+        return await SaveAndDetachAsync(entity, saveChanges);
+    }
+
+    public async Task<Request> RejectedAsync(Request entity, string comment, bool saveChanges = false)
+    {
+        entity.com
         return await SaveAndDetachAsync(entity, saveChanges);
     }
 }

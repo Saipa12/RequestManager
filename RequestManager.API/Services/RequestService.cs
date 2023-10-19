@@ -46,7 +46,7 @@ public class RequestService : IService
                 record.DispatchAddress = request.DispatchAddress;
                 record.Deliver = request.Deliver;
             }
-            else if (record.Status == RequestStatus.InProgress && (request.Status == RequestStatus.Cancelled || request.Status == RequestStatus.Completed))
+            else if (record.Status == RequestStatus.InProgress && (request.Status == RequestStatus.Rejected || request.Status == RequestStatus.Completed))
             {
                 record.Status = request.Status;
             }

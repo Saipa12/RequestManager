@@ -5,6 +5,7 @@ using RequestManager.Api.Enums;
 using RequestManager.API.Dto;
 using RequestManager.API.Handlers.DeliverHandler;
 using RequestManager.API.Handlers.RequestHandler;
+using System.Reflection;
 
 namespace RequestManager.Client.Pages;
 
@@ -97,9 +98,30 @@ public partial class Component1
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-        if (element.Id.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (ConcatenateFields(element).Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
+    }
+
+    public static string ConcatenateFields(object obj)
+    {
+        // Получаем все поля класса
+        var fields = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+
+        // Создаем пустую строку
+        var result = string.Empty;
+
+        // Объединяем значения полей в строку
+        foreach (var field in fields)
+        {
+            // Если поле не является статическим, то добавляем его значение к результату
+            if (!field.IsStatic)
+            {
+                result += field.GetValue(obj)?.ToString();
+            }
+        }
+
+        return result;
     }
 
     private async void AddNewRecord()

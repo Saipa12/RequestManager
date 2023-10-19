@@ -19,6 +19,7 @@ public class RequestDto : ClientEntity, IMapFrom<Request>
     public float Cost { get; set; }
     public string TelNumber { get; set; }
     public string RecipientFIO { get; set; }
+    public string Comment { get; init; }
 
     public DeliverDto Deliver { get; set; }
 }
