@@ -15,45 +15,34 @@ public class RequestRepository : Repository<Request>
 
     public override async Task<Request> UpdateAsync(Request entity, bool saveChanges = true)
     {
-        var record = await DatabaseContext.Requests.FirstOrDefaultAsync(x => x.Id == entity.Id);
-        if (record is not null)
+        var record = await DatabaseContext.Requests.FirstOrDefaultAsync(x => x.Id == entity.Id) ?? throw new Exception();
+        if(record.Status==RequestStatus.New)
         {
-            if (record.Status == RequestStatus.New)
-            {
-                record.Cost = 0;
-                record.DeliveryDate = entity.DeliveryDate;
-                record.CargoDescription = entity.CargoDescription;
-                record.DeliveryTime = entity.DeliveryTime;
-                record.RecipientFIO = entity.RecipientFIO;
-                record.DeliveryAddress = entity.DeliveryAddress;
-                record.DispatchAddress = entity.DispatchAddress;
-                record.Deliver = entity.Deliver;
-            }
-            else if (record.Status == RequestStatus.InProgress && (entity.Status == RequestStatus.Rejected || entity.Status == RequestStatus.Completed))
-            {
-                record.Status = entity.Status;
-            }
-            if (record.Deliver is not null)
-            {
-                record.Status = RequestStatus.InProgress;
-            }
-
-            // Пометьте сущность как измененную
-            DatabaseContext.Entry(entity).State = EntityState.Modified;
-
-            if (saveChanges)
-            {
-                await DatabaseContext.SaveChangesAsync();
-            }
+            entity.Status = RequestStatus.New;
+            return await base.UpdateAsync(entity, saveChanges);
         }
-        return await SaveAndDetachAsync(entity, saveChanges);
-    }
+        else if(record.Status == RequestStatus.InProgress)
+        {
+           
+        }
+        if (entity.Deliver is not null)
+        {
+            entity.Status = RequestStatus.InProgress;
+            entity.Deliver = await DatabaseContext.Delivers.FirstOrDefaultAsync(x => x.Id == entity.Deliver.Id);// TODO автоматизировать
+        }
+        if(record.Status == RequestStatus.InProgress)
+        {
+            entity.Deliver = await DatabaseContext.Delivers.FirstOrDefaultAsync(x => x.Id == entity.Deliver.Id);// TODO автоматизировать
+        }
 
+        return await base.UpdateAsync(entity, saveChanges);
+    }
+    
     public async Task<Request> RejectedAsync(Request entity, string comment, bool saveChanges = false)
     {
         entity.Reason = comment;
         entity.Status = RequestStatus.Rejected;
-       UpdateAsync(entity);
+        await UpdateAsync(entity);
         return await SaveAndDetachAsync(entity, saveChanges);
     }
 }

@@ -16,6 +16,5 @@ public class Deliver : AuditableDatabaseEntity
     public float Experience { get; set; }
     public string DriverLicenseCategory { get; set; }
 
-    [JsonIgnore]
     public List<Request> Requests { get; set; }
 }
