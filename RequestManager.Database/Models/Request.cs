@@ -26,6 +26,6 @@ public class Request : AuditableDatabaseEntity
     public float Cost { get; set; }
     public string TelNumber { get; set; }
     public string RecipientFIO { get; set; }
-    public string Comment { get; init; }
+    public string Reason { get; set; }
     public Deliver Deliver { get; set; }
 }

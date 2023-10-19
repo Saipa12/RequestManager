@@ -4,7 +4,7 @@ using RequestManager.Database.Models;
 
 namespace RequestManager.API.Dto;
 
-public class RequestDto : ClientEntity, IMapFrom<Request>
+public class RequestDto : DatabaseEntity, IMapFrom<Request>
 {
     public RequestStatus Status { get; set; }
 
@@ -19,7 +19,7 @@ public class RequestDto : ClientEntity, IMapFrom<Request>
     public float Cost { get; set; }
     public string TelNumber { get; set; }
     public string RecipientFIO { get; set; }
-    public string Comment { get; init; }
+    public string Reason { get; set; }
 
     public DeliverDto Deliver { get; set; }
 }

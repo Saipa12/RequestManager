@@ -16,10 +16,9 @@ public class MappingProfile : Profile
 
         var mappingMethodName = nameof(IMapFrom<object>.Mapping);
 
-        var types = assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(x => HasInterface(x, mapFromType))).ToList();
+        var types = assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(x => HasInterface(x, mapFromType)) && !t.IsAbstract).ToList();
 
-        var types = assembly.GetExportedTypes().Where(t => t.GetInterfaces().Any(HasInterface)).ToList();
-
+       
         var argumentTypes = new Type[] { typeof(Profile) };
 
         foreach (var type in types)

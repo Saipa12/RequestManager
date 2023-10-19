@@ -1,1 +1,1 @@
-﻿export * from "./components/photoCards/photoCard";
+﻿/*export * from "./components/photoCards/photoCard";*/

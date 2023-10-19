@@ -8,7 +8,7 @@ using System;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
-public record RejectedRequest(RequestDto Request);
+public record RejectedRequest(RequestDto Request, string Reason);
 
 public record RejectedResponse();
 
@@ -25,8 +25,8 @@ public class RejectedRequestHandler : IAsyncHandler<RejectedRequest, RejectedRes
 
     public async Task<RejectedResponse> Handle(RejectedRequest request)
     {
-        var deletedRequest = _mapper.Map<Request>(request.Request);
-        await _requestRepository.DeleteAsync(deletedRequest);
+        var rejectedRequest = _mapper.Map<Request>(request.Request);
+        await _requestRepository.RejectedAsync(rejectedRequest, request.Reason);
         return new RejectedResponse();
     }
 }

@@ -288,6 +288,7 @@ public partial class Init : Migration
                 Cost = table.Column<float>(type: "real", nullable: false),
                 TelNumber = table.Column<string>(type: "text", nullable: true),
                 RecipientFIO = table.Column<string>(type: "text", nullable: true),
+                Reason = table.Column<string>(type: "text", nullable: true),
                 DeliverId = table.Column<long>(type: "bigint", nullable: true),
                 CreatedById = table.Column<string>(type: "text", nullable: true),
                 CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),

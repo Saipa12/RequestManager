@@ -9,7 +9,7 @@
 }
 else
 {
-	<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddNewRecord">Добавить</MudButton>
+	<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddRecord">Добавить</MudButton>
 	<MudTable MultiSelection="true" @ref="@_mudTable" SelectedItem="@_selectedItem"
 			  T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
 			  Filter="new Func<RequestDto,bool>(FilterFunc)"

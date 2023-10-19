@@ -21,13 +21,13 @@ public abstract class Repository<TEntity> : IRepository where TEntity : class
 
     public virtual async Task<TEntity> GetFirstOrDefaultAsync(Expression<Func<TEntity, bool>> predicate) => await DatabaseContext.Set<TEntity>().FirstOrDefaultAsync(predicate);
 
-    public virtual async Task<TEntity> GetFirstOrDefaultAsync(Func<Task<TEntity>, Task<TEntity>> func) => await func(_databaseContext.Set<TEntity>().FirstOrDefaultAsync());
+    public virtual async Task<TEntity> GetFirstOrDefaultAsync(Func<Task<TEntity>, Task<TEntity>> func) => await func(DatabaseContext.Set<TEntity>().FirstOrDefaultAsync());
 
-    public virtual async Task<IEnumerable<TEntity>> GetAsync() => await _databaseContext.Set<TEntity>().ToListAsync();
+    public virtual async Task<IEnumerable<TEntity>> GetAsync() => await DatabaseContext.Set<TEntity>().ToListAsync();
 
     public virtual async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>> predicate) => await DatabaseContext.Set<TEntity>().Where(predicate).ToListAsync();
 
-    public virtual async Task<IEnumerable<TEntity>> GetAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> func) => await func(_databaseContext.Set<TEntity>()).ToListAsync();
+    public virtual async Task<IEnumerable<TEntity>> GetAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> func) => await func(DatabaseContext.Set<TEntity>()).ToListAsync();
 
     public virtual async Task<TEntity> CreateAsync(TEntity entity, bool saveChanges = true)
     {

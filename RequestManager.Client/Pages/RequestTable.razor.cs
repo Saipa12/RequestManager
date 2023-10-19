@@ -1,15 +1,17 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Hosting.Server;
 using MudBlazor;
 using RequestManager.Api.Enums;
 using RequestManager.API.Dto;
 using RequestManager.API.Handlers.DeliverHandler;
 using RequestManager.API.Handlers.RequestHandler;
+using RequestManager.Core.Components;
 using System.Reflection;
 
 namespace RequestManager.Client.Pages;
 
-public partial class Component1
+public partial class RequestTable
 {
     private List<RequestDto> Requests { get; set; }
 
@@ -25,13 +27,14 @@ public partial class Component1
     private TableApplyButtonPosition _applyButtonPosition = TableApplyButtonPosition.End;
     private TableEditButtonPosition _editButtonPosition = TableEditButtonPosition.End;
     private TableEditTrigger _editTrigger = TableEditTrigger.EditButton;
-
+    [Inject] private IDialogService DialogService { get; set; }
     [Inject] private GetRequestsHandler GetRequestsHandler { get; set; }
     [Inject] private GetDeliverHandler GetDeliverHandler { get; set; }
     [Inject] private GetRequestHandler GetRequestHandler { get; set; }
     [Inject] private AddRequestHandler AddRequestHandler { get; set; }
     [Inject] private EditRequestHandler EditRequestHandler { get; set; }
     [Inject] private DeleteRequestHandler DeleteRequestHandler { get; set; }
+    [Inject] private RejectedRequestHandler RejectedRequestHandler { get; set; }
 
     private MudTable<RequestDto> _mudTable;
 
@@ -62,13 +65,34 @@ public partial class Component1
         _elementBeforeEdit = Maper.Map<RequestDto>(element);
     }
 
+    public async void RejectRequest(RequestDto request)
+    {
+        var parameters = new DialogParameters<ReasonDialog> { };
+
+        var dialog = await DialogService.ShowAsync<ReasonDialog>("Delete Server", parameters);
+        var result = await dialog.Result;
+        //var reason = await dialog.Result.;
+
+        if (!result.Canceled)
+        {
+            await RejectedRequestHandler.Handle(new RejectedRequest(request, result.Data.ToString()));
+        }
+    }
+
     public async void Drop()
     {
         foreach (var request in _selectedItems)
         {
-            Requests.Remove(request);
-            request.Deliver = null;
-            await DeleteRequestHandler.Handle(new DeleteRequest(request));
+            if (request.Status == RequestStatus.New)
+            {
+                Requests.Remove(request);
+                request.Deliver = null;
+                await DeleteRequestHandler.Handle(new DeleteRequest(request));
+            }
+            else
+            {
+                RejectRequest(request);
+            }
         }
         await InvokeAsync(StateHasChanged);
     }
@@ -124,7 +148,7 @@ public partial class Component1
         return result;
     }
 
-    private async void AddNewRecord()
+    private async void AddRecord()
     {
         _mudTable.SetEditingItem(null);
         var newRecord = new RequestDto

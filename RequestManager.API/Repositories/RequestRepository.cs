@@ -15,7 +15,7 @@ public class RequestRepository : Repository<Request>
 
     public override async Task<Request> UpdateAsync(Request entity, bool saveChanges = true)
     {
-        var record = await _databaseContext.Requests.FirstOrDefaultAsync(x => x.Id == entity.Id);
+        var record = await DatabaseContext.Requests.FirstOrDefaultAsync(x => x.Id == entity.Id);
         if (record is not null)
         {
             if (record.Status == RequestStatus.New)
@@ -39,11 +39,11 @@ public class RequestRepository : Repository<Request>
             }
 
             // Пометьте сущность как измененную
-            _databaseContext.Entry(record).State = EntityState.Modified;
+            DatabaseContext.Entry(entity).State = EntityState.Modified;
 
             if (saveChanges)
             {
-                await _databaseContext.SaveChangesAsync();
+                await DatabaseContext.SaveChangesAsync();
             }
         }
         return await SaveAndDetachAsync(entity, saveChanges);
@@ -51,7 +51,9 @@ public class RequestRepository : Repository<Request>
 
     public async Task<Request> RejectedAsync(Request entity, string comment, bool saveChanges = false)
     {
-        entity.com
+        entity.Reason = comment;
+        entity.Status = RequestStatus.Rejected;
+       UpdateAsync(entity);
         return await SaveAndDetachAsync(entity, saveChanges);
     }
 }

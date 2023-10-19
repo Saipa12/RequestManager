@@ -1,0 +1,22 @@
+﻿@page "/simpledialog"
+@namespace RequestManager.Core.Components
+@using MudBlazor
+@inject IDialogService DialogService
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" @bind-value="@Name" Label="Name"></MudTextField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    public string Name { get; set; }
+    void Submit() => MudDialog.Close(DialogResult.Ok(Name));
+    void Cancel() => MudDialog.Cancel();
+}

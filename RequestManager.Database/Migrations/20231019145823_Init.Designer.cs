@@ -12,7 +12,7 @@ using RequestManager.Database.Contexts;
 namespace RequestManager.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231014122955_init")]
+    [Migration("20231019145823_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -393,6 +393,9 @@ namespace RequestManager.Database.Migrations
 
                     b.Property<string>("DispatchAddress")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Reason")
                         .HasColumnType("text");
 
                     b.Property<string>("RecipientFIO")

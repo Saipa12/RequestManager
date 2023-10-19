@@ -3,7 +3,7 @@ using RequestManager.Database.Models;
 
 namespace RequestManager.API.Dto;
 
-public class DeliverDto : ClientEntity, IMapFrom<Deliver>
+public class DeliverDto : DatabaseEntity, IMapFrom<Deliver>
 {
     public string Name { get; set; }
 

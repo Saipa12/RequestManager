@@ -392,6 +392,9 @@ namespace RequestManager.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Reason")
+                        .HasColumnType("text");
+
                     b.Property<string>("RecipientFIO")
                         .HasColumnType("text");
 
