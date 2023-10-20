@@ -69,7 +69,7 @@ public partial class RequestTable
     {
         var parameters = new DialogParameters<ReasonDialog> { };
 
-        var dialog = await DialogService.ShowAsync<ReasonDialog>("Delete Server", parameters);
+        var dialog = await DialogService.ShowAsync<ReasonDialog>($"{request.Id} From {request.DispatchAddress} To {request.DeliveryAddress} ", parameters);
         var result = await dialog.Result;
         //var reason = await dialog.Result.;
 
