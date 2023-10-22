@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using RequestManager.API.Dto;
 @using RequestManager.Api.Enums;
+@using RequestManager.Core.Components
 
 <h3>Start</h3>
 @if (Requests == null)
@@ -9,15 +10,17 @@
 }
 else
 {
-	<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddRecord">Добавить</MudButton>
-	<MudTable MultiSelection="true" @ref="@_mudTable" SelectedItem="@_selectedItem"
-			  T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
-			  Filter="new Func<RequestDto,bool>(FilterFunc)"
-			  SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
-			  RowEditPreview="x=>BackupItem((RequestDto)x)" RowEditCancel="x=>ResetItemToOriginalValues((RequestDto)x)"
-			  RowEditCommit="x=>ItemHasBeenCommitted((RequestDto)x)"
-			  IsEditRowSwitchingBlocked="@_blockSwitch" ApplyButtonPosition="@_applyButtonPosition" EditButtonPosition="@_editButtonPosition" EditTrigger="@_editTrigger">
-		<ToolBarContent>
+	<MudButton Variant="Variant.Filled" OnClick="AddRecord" StartIcon="@Icons.Material.Outlined.Add"></MudButton>
+<MudTable MultiSelection="true" @ref="_mudTable" SelectedItem="@_selectedItem"
+    T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
+    Filter="new Func<RequestDto, bool>(FilterFunc)"
+    SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+    RowEditPreview="x => BackupItem((RequestDto)x)" RowEditCancel="x => ResetItemToOriginalValues((RequestDto)x)"
+    RowEditCommit="x => ItemHasBeenCommitted((RequestDto)x)"
+    IsEditRowSwitchingBlocked="@_blockSwitch" ApplyButtonPosition="@_applyButtonPosition"
+    EditButtonPosition="@_editButtonPosition" EditTrigger="@_editTrigger" TotalItems="_totalItems"
+			  ServerData="@(new Func<TableState, Task<TableData<RequestDto>>>(LoadPage))">
+   		<ToolBarContent>
 			<MudText Typo="Typo.h6">Request</MudText>
 			<MudSpacer />
 			<MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
@@ -60,14 +63,7 @@ else
 				<MudTd DataLabel="Dispatch date">
 					<MudDatePicker @bind-Value="@context.DeliveryTime" />
 				</MudTd>
-				<MudTd DataLabel="Status">
-					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
-						@foreach (var status in _statuses)
-						{
-							<MudSelectItem Value="@status">@status</MudSelectItem>
-						}
-					</MudSelect>
-				</MudTd>
+				<MudTd DataLabel="Status">@context.Status</MudTd>
 				<MudTd DataLabel="Delivery address">
 					<MudTextField @bind-Value="@context.DeliveryAddress" />
 				</MudTd>
@@ -86,7 +82,17 @@ else
 				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
 				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
 				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
-				<MudTd DataLabel="Status">@context.Status</MudTd>
+				<MudTd DataLabel="Status">
+					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
+						@* 	@foreach (var status in _statuses) *@
+						@* 	{ *@
+						<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
+						<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
+
+						@* 	} *@
+					</MudSelect>
+				</MudTd>
+
 				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
 				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
 				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
@@ -101,10 +107,14 @@ else
 				</MudSelect>
 			</MudTd>
 		</RowEditingTemplate>
+		<PagerContent >
+			<MudTablePager  />
+		</PagerContent>
 		<EditButtonContent Context="button">
-			<MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />
+			<MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />	
 		</EditButtonContent>
 	</MudTable>
 	<MudIconButton Size="@MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Delete" OnClick="Drop">Delete</MudIconButton>
+	<ReasonDialog ></ReasonDialog>
 
 }

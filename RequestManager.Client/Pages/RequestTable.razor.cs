@@ -1,23 +1,32 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using RequestManager.Api.Enums;
 using RequestManager.API.Dto;
 using RequestManager.API.Handlers.DeliverHandler;
 using RequestManager.API.Handlers.RequestHandler;
+using RequestManager.API.Repositories;
 using RequestManager.Core.Components;
+using RequestManager.Database.Models;
 using System.Reflection;
+using static MudBlazor.CategoryTypes;
 
 namespace RequestManager.Client.Pages;
 
 public partial class RequestTable
 {
     private List<RequestDto> Requests { get; set; }
-
+    private int _page = 1;
+    private int _pageSize = 10;
+    private int _totalItems = 0;
     private IEnumerable<DeliverDto> Delivers { get; set; }
-    private IEnumerable<RequestStatus> _statuses;
+
+    //private List<RequestStatus> _statuses;
     [Inject] private IMapper Maper { get; set; }
+
     private bool _canCancelEdit = true;
     private bool _blockSwitch = false;
     private string _searchString = "";
@@ -38,15 +47,6 @@ public partial class RequestTable
 
     private MudTable<RequestDto> _mudTable;
 
-    protected override async Task OnInitializedAsync()
-    {
-        //Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto;
-        //Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
-        //_statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
-        //_selectedItems = new HashSet<RequestDto>();
-        //await InvokeAsync(StateHasChanged);
-    }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -54,10 +54,26 @@ public partial class RequestTable
             Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
             _selectedItems = new();
             Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
-            _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
+            // _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
+
             await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task<TableData<RequestDto>> LoadPage(TableState state)
+    {
+        _page = state.Page;
+        _pageSize = state.PageSize;
+
+        // Загрузите данные для текущей страницы, используя пагинацию
+        var response = await GetRequestsHandler.Handle(new GetRequests(true, _page, _pageSize));
+        Requests = response.RequestDto.ToList();
+        // await InvokeAsync(StateHasChanged);
+        // Вычислите общее количество элементов, возможно, также из серверного ответа
+        _totalItems = (await GetRequestsHandler.Handle(new GetRequests(true, _page))).Count;
+        return new TableData<RequestDto>() { TotalItems = _totalItems, Items = Requests };
+        //await InvokeAsync(StateHasChanged);
     }
 
     private void BackupItem(RequestDto element)
@@ -67,11 +83,10 @@ public partial class RequestTable
 
     public async void RejectRequest(RequestDto request)
     {
-        var parameters = new DialogParameters<ReasonDialog> { };
+        //var parameters = new DialogParameters<ReasonDialog> { };
 
-        var dialog = await DialogService.ShowAsync<ReasonDialog>($"{request.Id} From {request.DispatchAddress} To {request.DeliveryAddress} ", parameters);
+        var dialog = await DialogService.ShowAsync<ReasonDialog>($"{request.Id} From {request.DispatchAddress} To {request.DeliveryAddress} "/*, parameters*/);
         var result = await dialog.Result;
-        //var reason = await dialog.Result.;
 
         if (!result.Canceled)
         {

@@ -19,7 +19,6 @@ public class RequestRepository : Repository<Request>
 
         if (record.Status == RequestStatus.New)
         {
-            entity.Status = RequestStatus.New;
             entity.Deliver = await DatabaseContext.Delivers.FirstOrDefaultAsync(x => x.Id == entity.Deliver.Id);
             await base.UpdateAsync(entity, saveChanges);
         }
