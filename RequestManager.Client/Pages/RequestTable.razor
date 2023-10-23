@@ -76,36 +76,42 @@ else
 				<MudTd DataLabel="Recipient FIO">
 					<MudTextField @bind-Value="@context.RecipientFIO" />
 				</MudTd>
+				<MudTd DataLabel="Deliver">
+					<MudSelect @bind-Value="@context.Deliver" T="DeliverDto">
+						@foreach (var deliver in Delivers)
+						{
+							<MudSelectItem Value="@deliver">@deliver.Name</MudSelectItem>
+						}
+					</MudSelect>
+				</MudTd>
 			}
-			else
+			else if (context.Status == RequestStatus.InProgress)
 			{
 				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
 				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
 				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
 				<MudTd DataLabel="Status">
 					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
-						@* 	@foreach (var status in _statuses) *@
-						@* 	{ *@
 						<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
 						<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
-
-						@* 	} *@
 					</MudSelect>
 				</MudTd>
-
 				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
 				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
 				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
 				<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
 			}
-			<MudTd DataLabel="Deliver">
-				<MudSelect @bind-Value="@context.Deliver" T="DeliverDto">
-					@foreach (var deliver in Delivers)
-					{
-						<MudSelectItem Value="@deliver">@deliver.Name</MudSelectItem>
-					}
-				</MudSelect>
-			</MudTd>
+			else
+			{
+				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
+				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
+				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
+				<MudTd DataLabel="Status">@context.Status</MudTd>
+				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
+				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
+				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
+				<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
+			}
 		</RowEditingTemplate>
 		<PagerContent >
 			<MudTablePager  />

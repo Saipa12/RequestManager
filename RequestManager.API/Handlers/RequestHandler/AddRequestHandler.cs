@@ -8,7 +8,7 @@ namespace RequestManager.API.Handlers.RequestHandler;
 
 public record AddRequest(RequestDto RequestDto);
 
-public record AddResponse();
+public record AddResponse(long Id);
 
 public class AddRequestHandler : IAsyncHandler<AddRequest, AddResponse>
 {
@@ -25,6 +25,6 @@ public class AddRequestHandler : IAsyncHandler<AddRequest, AddResponse>
     {
         var addedRequest = _mapper.Map<Request>(request.RequestDto);
         await _requestRepository.CreateAsync(addedRequest);
-        return new AddResponse();
+        return new AddResponse(addedRequest.Id);
     }
 }

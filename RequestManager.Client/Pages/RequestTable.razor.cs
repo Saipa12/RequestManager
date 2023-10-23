@@ -172,7 +172,7 @@ public partial class RequestTable
             DeliveryAddress = "",
             DispatchAddress = "",
             DeliveryDate = DateTime.UtcNow,
-            DeliveryTime = DateTime.UtcNow.AddDays(1)
+            DeliveryTime = DateTime.UtcNow.AddDays(3)
         };
 
         Requests.Insert(0, newRecord);

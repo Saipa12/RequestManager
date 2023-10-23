@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RequestManager.API.Dto;
 using RequestManager.API.Repositories;
 using RequestManager.Core.Handlers;
-using Microsoft.EntityFrameworkCore;
 
 namespace RequestManager.API.Handlers.RequestHandler;
 
@@ -24,18 +24,19 @@ public class GetRequestsHandler : IAsyncHandler<GetRequests, GetResponses>
     public async Task<GetResponses> Handle(GetRequests request)
     {
         var skip = request.PageNumber * request.PageSize;
-        var count = (await _requestRepository.GetAsync()).ToList().Count;
-        if (request.IncludeDeliver)
+        var count = await _requestRepository.GetCount();
+        var query = await _requestRepository.GetAsync(x =>
         {
-            var requests = await _requestRepository.GetAsync(x => x.Include(d => d.Deliver).Skip(skip).Take(request.PageSize));
-            var response = requests.Select(_mapper.Map<RequestDto>);
-            return new GetResponses(response, count);
-        }
-        else
-        {
-            var requests = await _requestRepository.GetAsync(x => x.Skip(skip).Take(request.PageSize)); // Дожидаемся выполнения задачи
-            var response = requests.Select(_mapper.Map<RequestDto>);
-            return new GetResponses(response, count);
-        }
+            x = x.Skip(skip).Take(request.PageSize);
+            if (request.IncludeDeliver)
+            {
+                x = x.Include(d => d.Deliver);
+            }
+            return x;
+        });
+
+        var requests = query.ToList();
+        var response = requests.Select(_mapper.Map<RequestDto>);
+        return new GetResponses(response, count);
     }
 }
