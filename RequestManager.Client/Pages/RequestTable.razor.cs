@@ -43,7 +43,6 @@ public partial class RequestTable
         {
             Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
             Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto.ToList();
-            // _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
             await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
@@ -61,10 +60,7 @@ public partial class RequestTable
         {
             _isReadMode = false;
         }
-        //_mudTable.SetSelectedItem(Requests.First(x => x.Id == request.Id));
-        //_mudTable.SetEditingItem(Requests.First(x => x.Id == request.Id));
         BackupItem(request);
-        // StateHasChanged();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -130,8 +126,19 @@ public partial class RequestTable
 
     private void ResetItemToOriginalValues(RequestDto element)
     {
-        _elementBeforeEdit = Maper.Map<RequestDto>(element);
+        element = Maper.Map<RequestDto>(_elementBeforeEdit);
         _isEdit = false;
+    }
+
+    private string GetRowCssClass(RequestStatus status)
+    {
+        return status switch
+        {
+            RequestStatus.New => "new-status",
+            RequestStatus.Rejected => "rejected-status",
+            RequestStatus.InProgress => "progres-status",// Если у вас есть стандартный стиль строки
+            RequestStatus.Completed => "complited-status",// Если у вас есть стандартный стиль строки
+        };
     }
 
     private bool FilterFunc(RequestDto element)
@@ -178,8 +185,6 @@ public partial class RequestTable
 
         Requests.Insert(0, newRecord);
         await AddRequestHandler.Handle(new AddRequest(newRecord));
-        //_mudTable.SetSelectedItem(Requests.First());
-        //_mudTable.SetEditingItem(Requests.First());
         EditRequest(Requests.First());
         await InvokeAsync(StateHasChanged);
     }

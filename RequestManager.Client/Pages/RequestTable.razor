@@ -10,7 +10,6 @@
 }
 else
 {
-	<MudButton Variant="Variant.Filled" OnClick="AddRecord" StartIcon="@Icons.Material.Outlined.Add"></MudButton>
 	<MudTable @ref="_mudTable" T="RequestDto" Items="@Requests" Dense="true" Hover="true"
 			  Filter="new Func<RequestDto, bool>(FilterFunc)" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
 			  TotalItems="_totalItems"
@@ -22,18 +21,26 @@ else
 		</ToolBarContent>
 		<HeaderContent>
 			<MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RequestDto, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.CargoDescription)">Cargo description </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DeliveryDate)">Delivery date</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DeliveryTime)">Dispatch date</MudTableSortLabel></MudTh>
-			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DeliveryAddress)">Delivery address </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.DispatchAddress)">Dispatch address</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.TelNumber)">Recipient's number </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.RecipientFIO)">Recipient FIO </MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.Deliver.Name)">Deliver</MudTableSortLabel></MudTh>
+			<MudIconButton Variant="Variant.Filled" OnClick="AddRecord" Icon="@Icons.Material.Outlined.Add"></MudIconButton>
 		</HeaderContent>
-		<RowTemplate>
+		<RowTemplate >
+
 			<MudTd DataLabel="Id"> @context.Id</MudTd>
+			<MudTd Class=@GetRowCssClass(context.Status) DataLabel="Status">
+				<MudSelect DisableUnderLine=@_isReadMode ReadOnly=@_isStatusReadMode @bind-Value="@context.Status" T="RequestStatus">
+					<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
+					<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
+				</MudSelect>
+			</MudTd>
 			<MudTd DataLabel="Cargo description">
 				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.CargoDescription" />
 			</MudTd>
@@ -42,12 +49,6 @@ else
 			</MudTd>
 			<MudTd DataLabel="Dispatch date">
 				<MudDatePicker DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode AdornmentIcon="@(_isReadMode ? " " :Icons.Material.Filled.CalendarMonth)" @bind-Value="@context.DeliveryTime" Text="@context.DeliveryTime.ToString()" />
-			</MudTd>
-			<MudTd DataLabel="Status">
-				<MudSelect DisableUnderLine=@_isReadMode ReadOnly=@_isStatusReadMode @bind-Value="@context.Status" T="RequestStatus">
-					<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
-					<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
-				</MudSelect>
 			</MudTd>
 			<MudTd DataLabel="Delivery address">
 				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.DeliveryAddress" />
@@ -97,4 +98,20 @@ else
 		pointer-events: auto;
 		opacity: 1;
 	}
+	<style>
+    .new-status {
+        background-color: lightgrey; /* Серый фон для статуса "New" */
+    }
+
+    .rejected-status {
+        background-color: indianred; /* Красный фон для статуса "Rejected" */
+    }   
+	.progres-status {
+        background-color: orange; /* Красный фон для статуса "Rejected" */
+    }	
+	.complited-status {
+        background-color: lightgreen; /* Красный фон для статуса "Rejected" */
+    }
+</style>
+
 </style>
