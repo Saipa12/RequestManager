@@ -11,21 +11,15 @@
 else
 {
 	<MudButton Variant="Variant.Filled" OnClick="AddRecord" StartIcon="@Icons.Material.Outlined.Add"></MudButton>
-<MudTable MultiSelection="true" @ref="_mudTable" SelectedItem="@_selectedItem"
-    T="RequestDto" Items="@Requests" Dense="true" Hover="true" CanCancelEdit="@_canCancelEdit"
-    Filter="new Func<RequestDto, bool>(FilterFunc)"
-    SelectedItems="@_selectedItems" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
-    RowEditPreview="x => BackupItem((RequestDto)x)" RowEditCancel="x => ResetItemToOriginalValues((RequestDto)x)"
-    RowEditCommit="x => ItemHasBeenCommitted((RequestDto)x)"
-    IsEditRowSwitchingBlocked="@_blockSwitch" ApplyButtonPosition="@_applyButtonPosition"
-    EditButtonPosition="@_editButtonPosition" EditTrigger="@_editTrigger" TotalItems="_totalItems"
+	<MudTable @ref="_mudTable" T="RequestDto" Items="@Requests" Dense="true" Hover="true"
+			  Filter="new Func<RequestDto, bool>(FilterFunc)" SortLabel="Sort By" CommitEditTooltip="Commit Edit"
+			  TotalItems="_totalItems"
 			  ServerData="@(new Func<TableState, Task<TableData<RequestDto>>>(LoadPage))">
-   		<ToolBarContent>
+		<ToolBarContent>
 			<MudText Typo="Typo.h6">Request</MudText>
 			<MudSpacer />
 			<MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudBlazor.Size.Medium" Class="mt-0"></MudTextField>
 		</ToolBarContent>
-
 		<HeaderContent>
 			<MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<RequestDto, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
 			<MudTh><MudTableSortLabel SortBy="new Func<RequestDto, object>(x=>x.CargoDescription)">Cargo description </MudTableSortLabel></MudTh>
@@ -40,87 +34,67 @@ else
 		</HeaderContent>
 		<RowTemplate>
 			<MudTd DataLabel="Id"> @context.Id</MudTd>
-			<MudTd DataLabel="Cargo description"> @context.CargoDescription</MudTd>
-			<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
-			<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
-			<MudTd DataLabel="Status">@context.Status</MudTd>
-			<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
-			<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
-			<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
-			<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
-			<MudTd DataLabel="Deliver">@context.Deliver?.Name</MudTd>
+			<MudTd DataLabel="Cargo description">
+				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.CargoDescription" />
+			</MudTd>
+			<MudTd DataLabel="Delivery date">
+				<MudDatePicker DisableUnderLine=@_isReadMode ReadOnly="@_isReadMode" AdornmentIcon="@(_isReadMode ? " " :Icons.Material.Filled.CalendarMonth)" @bind-Value="@context.DeliveryDate" Text="@context.DeliveryTime.ToString()" />
+			</MudTd>
+			<MudTd DataLabel="Dispatch date">
+				<MudDatePicker DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode AdornmentIcon="@(_isReadMode ? " " :Icons.Material.Filled.CalendarMonth)" @bind-Value="@context.DeliveryTime" Text="@context.DeliveryTime.ToString()" />
+			</MudTd>
+			<MudTd DataLabel="Status">
+				<MudSelect DisableUnderLine=@_isReadMode ReadOnly=@_isStatusReadMode @bind-Value="@context.Status" T="RequestStatus">
+					<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
+					<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
+				</MudSelect>
+			</MudTd>
+			<MudTd DataLabel="Delivery address">
+				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.DeliveryAddress" />
+			</MudTd>
+			<MudTd DataLabel="Dispatch address">
+				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.DispatchAddress" />
+			</MudTd>
+			<MudTd DataLabel="Recipient's number">
+				<MudNumericField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.TelNumber" />
+			</MudTd>
+			<MudTd DataLabel="Recipient FIO">
+				<MudTextField DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.RecipientFIO" />
+			</MudTd>
+			<MudTd DataLabel="Deliver">
+				<MudSelect DisableUnderLine=@_isReadMode ReadOnly=@_isReadMode @bind-Value="@context.Deliver" ToStringFunc="@(x => (x is not null ? x.Name : "нет курьера"))" T="DeliverDto">
+					@foreach (var deliver in Delivers)
+					{
+						<MudSelectItem Value="@deliver">@deliver.Name</MudSelectItem>
+					}
+				</MudSelect>
+			</MudTd>
+			<MudTd>
+				<MudIconButton Class="@(_isEdit && _editItemId == context.Id ? "visible-and-enabled" :  "hidden-and-disabled" )" OnClick="()=>ItemHasBeenCommitted(context)" Icon="@Icons.Material.Outlined.Check" />
+				<MudIconButton Class="@(_isEdit && _editItemId == context.Id ? "visible-and-enabled" :  "hidden-and-disabled")" OnClick="()=>ResetItemToOriginalValues(context)" Icon="@Icons.Material.Filled.Cancel" />
+				<MudIconButton Class="@((context.Status is RequestStatus.New or RequestStatus.InProgress && !_isEdit ? "visible-and-enabled" :  "hidden-and-disabled"))"
+							   OnClick="() => EditRequest(context)" Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" />
+				<MudIconButton Class="@((context.Status is RequestStatus.New or RequestStatus.InProgress && !_isEdit ? "visible-and-enabled" :  "hidden-and-disabled"))"
+							   OnClick="() => Drop(context)" Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Delete" />
+			</MudTd>
 		</RowTemplate>
-		<RowEditingTemplate>
-			<MudTd DataLabel="Id">@context.Id</MudTd>
-			@if (context.Status == RequestStatus.New)
-			{
-				<MudTd DataLabel="Cargo description">
-					<MudTextField @bind-Value="@context.CargoDescription" />
-				</MudTd>
-				<MudTd DataLabel="Delivery date">
-					<MudDatePicker @bind-Value="@context.DeliveryDate" />
-				</MudTd>
-				<MudTd DataLabel="Dispatch date">
-					<MudDatePicker @bind-Value="@context.DeliveryTime" />
-				</MudTd>
-				<MudTd DataLabel="Status">@context.Status</MudTd>
-				<MudTd DataLabel="Delivery address">
-					<MudTextField @bind-Value="@context.DeliveryAddress" />
-				</MudTd>
-				<MudTd DataLabel="Dispatch address">
-					<MudTextField @bind-Value="@context.DispatchAddress" />
-				</MudTd>
-				<MudTd DataLabel="Recipient's number">
-					<MudNumericField @bind-Value="@context.TelNumber" />
-				</MudTd>
-				<MudTd DataLabel="Recipient FIO">
-					<MudTextField @bind-Value="@context.RecipientFIO" />
-				</MudTd>
-				<MudTd DataLabel="Deliver">
-					<MudSelect @bind-Value="@context.Deliver" T="DeliverDto">
-						@foreach (var deliver in Delivers)
-						{
-							<MudSelectItem Value="@deliver">@deliver.Name</MudSelectItem>
-						}
-					</MudSelect>
-				</MudTd>
-			}
-			else if (context.Status == RequestStatus.InProgress)
-			{
-				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
-				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
-				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
-				<MudTd DataLabel="Status">
-					<MudSelect @bind-Value="@context.Status" T="RequestStatus">
-						<MudSelectItem Value="@context.Status">@context.Status</MudSelectItem>
-						<MudSelectItem Value="@RequestStatus.Completed">@RequestStatus.Completed</MudSelectItem>
-					</MudSelect>
-				</MudTd>
-				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
-				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
-				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
-				<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
-			}
-			else
-			{
-				<MudTd DataLabel="Cargo description">@context.CargoDescription</MudTd>
-				<MudTd DataLabel="Delivery date">@context.DeliveryDate</MudTd>
-				<MudTd DataLabel="Dispatch date">@context.DeliveryTime</MudTd>
-				<MudTd DataLabel="Status">@context.Status</MudTd>
-				<MudTd DataLabel="Delivery address">@context.DeliveryAddress</MudTd>
-				<MudTd DataLabel="Dispatch address">@context.DispatchAddress</MudTd>
-				<MudTd DataLabel="Recipient's number">@context.TelNumber</MudTd>
-				<MudTd DataLabel="Recipient FIO">@context.RecipientFIO</MudTd>
-			}
-		</RowEditingTemplate>
-		<PagerContent >
-			<MudTablePager  />
+		<PagerContent>
+			<MudTablePager />
 		</PagerContent>
-		<EditButtonContent Context="button">
-			<MudIconButton Size="@MudBlazor.Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" Disabled="@button.ButtonDisabled" />	
-		</EditButtonContent>
 	</MudTable>
-	<MudIconButton Size="@MudBlazor.Size.Large" Icon="@Icons.Material.Filled.Delete" OnClick="Drop">Delete</MudIconButton>
-	<ReasonDialog ></ReasonDialog>
+	<ReasonDialog></ReasonDialog>
 
 }
+<style>
+	.hidden-and-disabled {
+		display: none;
+		pointer-events: none;
+		opacity: 0.5;
+	}
+
+	.visible-and-enabled {
+		display: block;
+		pointer-events: auto;
+		opacity: 1;
+	}
+</style>

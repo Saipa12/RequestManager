@@ -1,18 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using MudBlazor;
 using RequestManager.Api.Enums;
 using RequestManager.API.Dto;
 using RequestManager.API.Handlers.DeliverHandler;
 using RequestManager.API.Handlers.RequestHandler;
-using RequestManager.API.Repositories;
 using RequestManager.Core.Components;
-using RequestManager.Database.Models;
 using System.Reflection;
-using static MudBlazor.CategoryTypes;
 
 namespace RequestManager.Client.Pages;
 
@@ -22,20 +16,18 @@ public partial class RequestTable
     private int _page = 1;
     private int _pageSize = 10;
     private int _totalItems = 0;
-    private IEnumerable<DeliverDto> Delivers { get; set; }
+    private bool _isEdit = false;
+    private bool _isReadMode = true;
+    private bool _isStatusReadMode = true;
+    private long _editItemId = 0;
+    private List<DeliverDto> Delivers { get; set; }
 
     //private List<RequestStatus> _statuses;
     [Inject] private IMapper Maper { get; set; }
 
-    private bool _canCancelEdit = true;
-    private bool _blockSwitch = false;
+    private MudTable<RequestDto> _mudTable;
     private string _searchString = "";
-    private RequestDto _selectedItem = null;
     private RequestDto _elementBeforeEdit;
-    private HashSet<RequestDto> _selectedItems;
-    private TableApplyButtonPosition _applyButtonPosition = TableApplyButtonPosition.End;
-    private TableEditButtonPosition _editButtonPosition = TableEditButtonPosition.End;
-    private TableEditTrigger _editTrigger = TableEditTrigger.EditButton;
     [Inject] private IDialogService DialogService { get; set; }
     [Inject] private GetRequestsHandler GetRequestsHandler { get; set; }
     [Inject] private GetDeliverHandler GetDeliverHandler { get; set; }
@@ -45,20 +37,35 @@ public partial class RequestTable
     [Inject] private DeleteRequestHandler DeleteRequestHandler { get; set; }
     [Inject] private RejectedRequestHandler RejectedRequestHandler { get; set; }
 
-    private MudTable<RequestDto> _mudTable;
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             Requests = (await GetRequestsHandler.Handle(new GetRequests(true))).RequestDto.ToList();
-            _selectedItems = new();
-            Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto;
+            Delivers = (await GetDeliverHandler.Handle(new GetDeliverRequests(true))).DeliverDto.ToList();
             // _statuses = Enum.GetValues(typeof(RequestStatus)).Cast<RequestStatus>();
-
             await InvokeAsync(StateHasChanged);
         }
         await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async void EditRequest(RequestDto request)
+    {
+        _isEdit = true;
+        _editItemId = request.Id;
+        if (request.Status == RequestStatus.InProgress)
+        {
+            _isStatusReadMode = false;
+        }
+        else
+        {
+            _isReadMode = false;
+        }
+        //_mudTable.SetSelectedItem(Requests.First(x => x.Id == request.Id));
+        //_mudTable.SetEditingItem(Requests.First(x => x.Id == request.Id));
+        BackupItem(request);
+        // StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task<TableData<RequestDto>> LoadPage(TableState state)
@@ -66,14 +73,10 @@ public partial class RequestTable
         _page = state.Page;
         _pageSize = state.PageSize;
 
-        // Загрузите данные для текущей страницы, используя пагинацию
         var response = await GetRequestsHandler.Handle(new GetRequests(true, _page, _pageSize));
         Requests = response.RequestDto.ToList();
-        // await InvokeAsync(StateHasChanged);
-        // Вычислите общее количество элементов, возможно, также из серверного ответа
         _totalItems = (await GetRequestsHandler.Handle(new GetRequests(true, _page))).Count;
         return new TableData<RequestDto>() { TotalItems = _totalItems, Items = Requests };
-        //await InvokeAsync(StateHasChanged);
     }
 
     private void BackupItem(RequestDto element)
@@ -81,7 +84,7 @@ public partial class RequestTable
         _elementBeforeEdit = Maper.Map<RequestDto>(element);
     }
 
-    public async void RejectRequest(RequestDto request)
+    public async Task RejectRequest(RequestDto request)
     {
         //var parameters = new DialogParameters<ReasonDialog> { };
 
@@ -94,20 +97,17 @@ public partial class RequestTable
         }
     }
 
-    public async void Drop()
+    public async void Drop(RequestDto request)
     {
-        foreach (var request in _selectedItems)
+        if (request.Status == RequestStatus.New)
         {
-            if (request.Status == RequestStatus.New)
-            {
-                Requests.Remove(request);
-                request.Deliver = null;
-                await DeleteRequestHandler.Handle(new DeleteRequest(request));
-            }
-            else
-            {
-                RejectRequest(request);
-            }
+            Requests.Remove(request);
+            request.Deliver = null;
+            await DeleteRequestHandler.Handle(new DeleteRequest(request));
+        }
+        else
+        {
+            await RejectRequest(request);
         }
         await InvokeAsync(StateHasChanged);
     }
@@ -124,13 +124,14 @@ public partial class RequestTable
         {
             await EditRequestHandler.Handle(new EditRequest(element));
         }
-
+        _isEdit = false;
         await InvokeAsync(StateHasChanged);
     }
 
     private void ResetItemToOriginalValues(RequestDto element)
     {
         _elementBeforeEdit = Maper.Map<RequestDto>(element);
+        _isEdit = false;
     }
 
     private bool FilterFunc(RequestDto element)
@@ -177,8 +178,9 @@ public partial class RequestTable
 
         Requests.Insert(0, newRecord);
         await AddRequestHandler.Handle(new AddRequest(newRecord));
-        _mudTable.SetSelectedItem(Requests.First());
-        _mudTable.SetEditingItem(Requests.First());
+        //_mudTable.SetSelectedItem(Requests.First());
+        //_mudTable.SetEditingItem(Requests.First());
+        EditRequest(Requests.First());
         await InvokeAsync(StateHasChanged);
     }
 }

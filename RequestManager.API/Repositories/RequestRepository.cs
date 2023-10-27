@@ -30,6 +30,7 @@ public class RequestRepository : Repository<Request>
         }
         else if (record.Status == RequestStatus.InProgress && (entity.Status == RequestStatus.Completed || entity.Status == RequestStatus.Rejected))
         {
+            entity.Deliver = await DatabaseContext.Delivers.FirstOrDefaultAsync(x => x.Id == entity.Deliver.Id);
             await base.UpdateAsync(entity, saveChanges);
         }
         else if (entity.Status == RequestStatus.InProgress)
